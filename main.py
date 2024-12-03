@@ -7,6 +7,8 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 font = pygame.font.Font(None, 36)  # Standard-Schriftart, Größe 36
 
+#halloooooo
+
 #Fenster 
 screen_width = 1280
 screen_height = 720
