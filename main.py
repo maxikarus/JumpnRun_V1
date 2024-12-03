@@ -22,7 +22,7 @@ fps_timer = 0
 curr_fps = 0
 
 #Grafiken
-player_img = pygame.image.load('image/player1.png')
+player_img = pygame.image.load('image/Player1.png')
 player_img = pygame.transform.scale(player_img, (100, 100))  # Breite und Höhe anpassen
 background_img = pygame.image.load('image/background.png')
 background_img = pygame.transform.scale(background_img, (screen_width, screen_height))
