@@ -37,30 +37,35 @@ world_data = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ]
 
 class Player():
     def __init__(self, x: int, y: int) -> None:
         img = pygame.image.load('image/Player1.png')
-        self.image = pygame.transform.scale(img, (64, 64))
+        self.image = pygame.transform.scale(img, (48, 64))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
         self.vel_y = 0
         self.jumped = False
+        self.onGround = False
 
     def update(self):
         dx = 0
         dy = 0
+
         keys = pygame.key.get_pressed()
-        if (keys[K_w] or keys[K_SPACE]) and self.jumped == False:
+        if (keys[K_w] or keys[K_SPACE]) and self.jumped == False and self.onGround == True:
             self.vel_y = -screen_width / 30
             self.jumped = True
-        if keys[K_w] or keys[K_SPACE] == False:     
+            self.onGround = False
+        if (keys[K_w] or keys[K_SPACE]) == False:     
             self.jumped = False
         if keys[K_a]:
             dx -= speed * delta_time
@@ -69,13 +74,29 @@ class Player():
         if keys[K_d]:
             dx += speed * delta_time
 
-
         #add gravity
         self.vel_y += 5
         if self.vel_y > 10:
             self.vel_y = 10
         dy += self.vel_y
+
         #check for collison
+        for tile in world.tile_list:
+            #check in x
+            if tile[1].colliderect(self.rect.x +dx, self.rect.y, self.width, self.height):
+                if dx > 0:  # Moving right
+                    dx = tile[1].left - self.rect.right
+                elif dx < 0:  # Moving left
+                    dx = tile[1].right - self.rect.left
+            #check in y
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                #check if below block
+                if self.vel_y < 0:
+                    dy = tile[1].bottom - self.rect.top
+                    self.vel_y = 0
+                elif self.vel_y >= 0:
+                    dy = tile[1].top - self.rect.bottom
+                    self.onGround = True
 
         #update player position
         self.rect.x += dx
@@ -86,6 +107,7 @@ class Player():
             dy = 0
 
         screen.blit(self.image, self.rect)
+        pygame.draw.rect(screen, (255,255,255), self.rect, 2)
         
 
 class World():
@@ -112,6 +134,7 @@ class World():
     def draw(self) -> None:
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
+            pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
 
 player = Player(100, screen_height-128)
 world = World(world_data)
