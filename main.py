@@ -24,8 +24,18 @@ delta_time = 0
 speed = 400
 
 #Grafiken
-background_img = pygame.image.load('image/background.png')
-background_img = pygame.transform.scale(background_img, (screen_width, screen_height))
+background_imgs = []
+for i in range (1,6):
+    background_img = pygame.image.load(f'image/plx-{i}.png').convert_alpha()
+    background_img = pygame.transform.scale(background_img, (screen_width, screen_height))
+    background_imgs.append(background_img)
+background_width = background_imgs[0].get_width()
+
+scroll = 0
+
+
+#background_img = pygame.image.load('image/background.png')
+
 
 #World
 tile_size = screen_width / 20
@@ -67,12 +77,13 @@ class Player():
             self.onGround = False
         if (keys[K_w] or keys[K_SPACE]) == False:     
             self.jumped = False
-        if keys[K_a]:
+        if keys[K_a] and scroll >= 0:
             dx -= speed * delta_time
         if keys[K_s]:
             dy += speed * delta_time
-        if keys[K_d]:
+        if keys[K_d] and scroll < 3000:
             dx += speed * delta_time
+
 
         #add gravity
         self.vel_y += 5
@@ -136,10 +147,20 @@ class World():
             screen.blit(tile[0], tile[1])
             pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
 
+   
+
+def draw_background():
+    for x in range(5):
+        bg_speed = 0.2
+        for i in background_imgs:
+            screen.blit(i, ((x*background_width) - scroll * bg_speed, 0))
+            bg_speed += 0.1
+
 player = Player(100, screen_height-128)
 world = World(world_data)
 
-screen.blit(background_img, (0,0))
+
+#screen.blit(background_img, (0,0))
 pygame.display.update()
 
 run = True
@@ -160,7 +181,7 @@ while run:
         fps_timer = 0
     fps_text = font.render(f"FPS: {int(curr_fps)}", True, white)
 
-    # screen.blit(background_img, old_player_rect, old_player_rect)
+    # screen.blit(background_img, old_player_rect, old_player_rect)dw
     # fps_rect = pygame.Rect(10, 10, fps_text.get_width(), fps_text.get_height())
     # screen.blit(background_img, fps_rect, fps_rect) 
     # world.draw()
@@ -168,7 +189,13 @@ while run:
     # screen.blit(fps_text, (10, 10))
     # pygame.display.update([old_player_rect, player, pygame.Rect(10, 10, fps_text.get_width(), fps_text.get_height())])
 
-    screen.blit(background_img, (0, 0))  # Hintergrund zeichnen
+    #screen.blit(background_img, (0, 0))  # Hintergrund zeichnen
+    draw_background()
+    key = pygame.key.get_pressed()
+    if key[pygame.K_a] and scroll > -5:
+        scroll -= 5
+    if key[pygame.K_d] and scroll < 3000:
+        scroll += 5
     world.draw()  # Welt zeichnen
     player.update()
     screen.blit(fps_text, (10, 10))  # FPS-Anzeige zeichnen
