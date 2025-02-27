@@ -1,11 +1,14 @@
 import pygame
 from pygame.locals import *
 pygame.init()
+main_menu = True
+play = False
 
 # Farben und Schriftart
 white = (255, 255, 255)
 black = (0, 0, 0)
 font = pygame.font.Font(None, 36)  # Standard-Schriftart, Größe 36
+font2 = pygame.font.Font(None, 100)  # Standard-Schriftart, Größe 36
 
 #Fenster 
 screen_width = 1280 #20 tiles
@@ -147,7 +150,29 @@ class World():
             screen.blit(tile[0], tile[1])
             pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
 
-   
+class Button():
+	def __init__(self, image, x_pos, y_pos, text_input):
+		self.image = image
+		self.x_pos = x_pos
+		self.y_pos = y_pos
+		self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
+		self.text_input = text_input
+		self.text = font.render(self.text_input, True, "white")
+		self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
+
+	def update(self):
+		screen.blit(self.image, self.rect)
+		screen.blit(self.text, self.text_rect)
+
+	def checkForInput(self, position):
+		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
+			return True
+
+	def changeColor(self, position):
+		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
+			self.text = font.render(self.text_input, True, "white")
+		else:
+			self.text = font.render(self.text_input, True, "#0a4635")   
 
 def draw_background():
     for x in range(5):
@@ -163,8 +188,37 @@ world = World(world_data)
 #screen.blit(background_img, (0,0))
 pygame.display.update()
 
-run = True
-while run:
+while main_menu:
+    draw_background()
+    mouse_pos = pygame.mouse.get_pos()
+
+    menu_text = font2.render("Julia's game", True, white)
+    menu_rect = menu_text.get_rect(center=(640, 100))
+
+    play_button = Button(pygame.image.load("image/main_button.png"), 640, 330, "PLAY")
+    quit_button = Button(pygame.image.load("image/main_button.png"), 640, 380, "QUIT")
+
+    for button in [play_button, quit_button]:
+        button.changeColor(mouse_pos)
+        button.update()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            main_menu = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if play_button.checkForInput(mouse_pos):
+                main_menu = False
+                play = True
+            if quit_button.checkForInput(mouse_pos):
+                main_menu = False
+
+    screen.blit(menu_text, menu_rect)
+
+    pygame.display.flip()
+
+
+
+while play:
     delta_time = clock.tick(FPS) / 1000
 
    # old_player_rect = player.copy()
@@ -172,7 +226,7 @@ while run:
     #Eventhandler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            play = False
 
     #FPS-Counter
     fps_timer += delta_time
