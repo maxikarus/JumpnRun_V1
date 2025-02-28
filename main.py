@@ -3,12 +3,15 @@ from pygame.locals import *
 pygame.init()
 main_menu = True
 play = False
+paused = False
 
 # Farben und Schriftart
 white = (255, 255, 255)
 black = (0, 0, 0)
 font = pygame.font.Font(None, 36)  # Standard-Schriftart, Größe 36
-font2 = pygame.font.Font(None, 100)  # Standard-Schriftart, Größe 36
+font2 = pygame.font.Font(None, 100)  # Standard-Schriftart, Größe 100
+
+pause_text = font2.render("Pause", True, "white")
 
 #Fenster 
 screen_width = 1280 #20 tiles
@@ -227,6 +230,10 @@ while play:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             play = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                paused = not paused
+
 
     #FPS-Counter
     fps_timer += delta_time
@@ -243,15 +250,21 @@ while play:
     # screen.blit(fps_text, (10, 10))
     # pygame.display.update([old_player_rect, player, pygame.Rect(10, 10, fps_text.get_width(), fps_text.get_height())])
 
-    #screen.blit(background_img, (0, 0))  # Hintergrund zeichnen
-    draw_background()
-    key = pygame.key.get_pressed()
-    if key[pygame.K_a] and scroll > -5:
-        scroll -= 5
-    if key[pygame.K_d] and scroll < 3000:
-        scroll += 5
-    world.draw()  # Welt zeichnen
-    player.update()
-    screen.blit(fps_text, (10, 10))  # FPS-Anzeige zeichnen
+    if not paused:
+        #screen.blit(background_img, (0, 0))  # Hintergrund zeichnen
+        draw_background()
+        key = pygame.key.get_pressed()
+        if key[pygame.K_a] and scroll > -5:
+            scroll -= 5
+        if key[pygame.K_d] and scroll < 3000:
+            scroll += 5
+        world.draw()  # Welt zeichnen
+        player.update()
+        screen.blit(fps_text, (10, 10))  # FPS-Anzeige zeichnen
+
+    if paused:
+        screen.blit(pause_text, (530, 200))
+        #screen.blit(fps_text, (10, 10))
+    
     pygame.display.flip()
 pygame.quit()
