@@ -1,7 +1,9 @@
 import pygame
 from pygame.locals import *
 pygame.init()
+loop = True
 main_menu = True
+option_menu = False
 play = False
 paused = False
 
@@ -190,81 +192,109 @@ world = World(world_data)
 
 #screen.blit(background_img, (0,0))
 pygame.display.update()
-
-while main_menu:
-    draw_background()
-    mouse_pos = pygame.mouse.get_pos()
-
-    menu_text = font2.render("Julia's game", True, white)
-    menu_rect = menu_text.get_rect(center=(640, 100))
-
-    play_button = Button(pygame.image.load("image/main_button.png"), 640, 330, "PLAY")
-    quit_button = Button(pygame.image.load("image/main_button.png"), 640, 380, "QUIT")
-
-    for button in [play_button, quit_button]:
-        button.changeColor(mouse_pos)
-        button.update()
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            main_menu = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if play_button.checkForInput(mouse_pos):
-                main_menu = False
-                play = True
-            if quit_button.checkForInput(mouse_pos):
-                main_menu = False
-
-    screen.blit(menu_text, menu_rect)
-
-    pygame.display.flip()
-
-
-
-while play:
-    delta_time = clock.tick(FPS) / 1000
-
-   # old_player_rect = player.copy()
-    
-    #Eventhandler
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            play = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                paused = not paused
-
-
-    #FPS-Counter
-    fps_timer += delta_time
-    if fps_timer >= 1.0:  # Aktualisiere die FPS-Anzeige jede Sekunde
-        curr_fps = clock.get_fps()
-        fps_timer = 0
-    fps_text = font.render(f"FPS: {int(curr_fps)}", True, white)
-
-    # screen.blit(background_img, old_player_rect, old_player_rect)dw
-    # fps_rect = pygame.Rect(10, 10, fps_text.get_width(), fps_text.get_height())
-    # screen.blit(background_img, fps_rect, fps_rect) 
-    # world.draw()
-    # player.update()
-    # screen.blit(fps_text, (10, 10))
-    # pygame.display.update([old_player_rect, player, pygame.Rect(10, 10, fps_text.get_width(), fps_text.get_height())])
-
-    if not paused:
-        #screen.blit(background_img, (0, 0))  # Hintergrund zeichnen
+while loop:
+    while main_menu:
         draw_background()
-        key = pygame.key.get_pressed()
-        if key[pygame.K_a] and scroll > -5:
-            scroll -= 5
-        if key[pygame.K_d] and scroll < 3000:
-            scroll += 5
-        world.draw()  # Welt zeichnen
-        player.update()
-        screen.blit(fps_text, (10, 10))  # FPS-Anzeige zeichnen
+        mouse_pos = pygame.mouse.get_pos()
 
-    if paused:
-        screen.blit(pause_text, (530, 200))
-        #screen.blit(fps_text, (10, 10))
+        menu_text = font2.render("Julia's game", True, white)
+        menu_rect = menu_text.get_rect(center=(screen_width/2, (screen_height/10)*1))
+
+        play_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*4, "PLAY")
+        option_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*5, "OPTIONS")
+        quit_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*6, "QUIT")
+
+        for button in [play_button, option_button, quit_button]:
+            button.changeColor(mouse_pos)
+            button.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                main_menu = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if play_button.checkForInput(mouse_pos):
+                    main_menu = False
+                    play = True
+                if option_button.checkForInput(mouse_pos):
+                    main_menu = False
+                    play = False
+                    option_menu = True
+                if quit_button.checkForInput(mouse_pos):
+                    main_menu = False
+                    loop = False
+
+        screen.blit(menu_text, menu_rect)
+
+        pygame.display.flip()
+
+    while option_menu:
+        draw_background()
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        menu_text = font2.render("Julia's game", True, white)
+        menu_rect = menu_text.get_rect(center=(screen_width/2, (screen_height/10)*1))
+
+        menu_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*7, "MENU")
+        quit_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*8, "QUIT")
+
+        for button in [menu_button, quit_button]:
+            button.changeColor(mouse_pos)
+            button.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                main_menu = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if menu_button.checkForInput(mouse_pos):
+                    main_menu = True
+                    play = False
+                    option_menu = False
+                if quit_button.checkForInput(mouse_pos):
+                    loop = False
+                    main_menu = False
+                    option_menu = False
     
-    pygame.display.flip()
+        pygame.display.flip()
+
+    while play:
+        delta_time = clock.tick(FPS) / 1000
+
+    # old_player_rect = player.copy()
+    
+        #Eventhandler
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                play = False
+                loop = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    paused = not paused
+
+
+        #FPS-Counter
+        fps_timer += delta_time
+        if fps_timer >= 1.0:  # Aktualisiere die FPS-Anzeige jede Sekunde
+            curr_fps = clock.get_fps()
+            fps_timer = 0
+        fps_text = font.render(f"FPS: {int(curr_fps)}", True, white)
+
+        if not paused:
+            #screen.blit(background_img, (0, 0))  # Hintergrund zeichnen
+            draw_background()
+            key = pygame.key.get_pressed()
+            if key[pygame.K_a] and scroll > -5:
+                scroll -= 5
+            if key[pygame.K_d] and scroll < 3000:
+                scroll += 5
+            world.draw()  # Welt zeichnen
+            player.update()
+            screen.blit(fps_text, (10, 10))  # FPS-Anzeige zeichnen
+
+        if paused:
+            screen.blit(pause_text, (530, 200))
+            #screen.blit(fps_text, (10, 10))
+    
+        pygame.display.flip()
+    
 pygame.quit()
