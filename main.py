@@ -1,5 +1,8 @@
 import pygame
 from pygame.locals import *
+from buttons import *
+from player import *
+
 pygame.init()
 loop = True
 main_menu = True
@@ -30,6 +33,7 @@ fps_timer = 0
 curr_fps = 0
 delta_time = 0
 speed = 400
+scroll = 0
 
 #Grafiken
 background_imgs = []
@@ -39,11 +43,7 @@ for i in range (1,6):
     background_imgs.append(background_img)
 background_width = background_imgs[0].get_width()
 
-scroll = 0
-
-
 #background_img = pygame.image.load('image/background.png')
-
 
 #World
 tile_size = screen_width / 20
@@ -60,75 +60,7 @@ world_data = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ]
-
-class Player():
-    def __init__(self, x: int, y: int) -> None:
-        img = pygame.image.load('image/Player1.png')
-        self.image = pygame.transform.scale(img, (48, 64))
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-        self.vel_y = 0
-        self.jumped = False
-        self.onGround = False
-
-    def update(self):
-        dx = 0
-        dy = 0
-
-        keys = pygame.key.get_pressed()
-        if (keys[K_w] or keys[K_SPACE]) and self.jumped == False and self.onGround == True:
-            self.vel_y = -screen_width / 30
-            self.jumped = True
-            self.onGround = False
-        if (keys[K_w] or keys[K_SPACE]) == False:     
-            self.jumped = False
-        if keys[K_a] and scroll >= 0:
-            dx -= speed * delta_time
-        if keys[K_s]:
-            dy += speed * delta_time
-        if keys[K_d] and scroll < 3000:
-            dx += speed * delta_time
-
-
-        #add gravity
-        self.vel_y += 5
-        if self.vel_y > 10:
-            self.vel_y = 10
-        dy += self.vel_y
-
-        #check for collison
-        for tile in world.tile_list:
-            #check in x
-            if tile[1].colliderect(self.rect.x +dx, self.rect.y, self.width, self.height):
-                if dx > 0:  # Moving right
-                    dx = tile[1].left - self.rect.right
-                elif dx < 0:  # Moving left
-                    dx = tile[1].right - self.rect.left
-            #check in y
-            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
-                #check if below block
-                if self.vel_y < 0:
-                    dy = tile[1].bottom - self.rect.top
-                    self.vel_y = 0
-                elif self.vel_y >= 0:
-                    dy = tile[1].top - self.rect.bottom
-                    self.onGround = True
-
-        #update player position
-        self.rect.x += dx
-        self.rect.y += dy
-
-        if self.rect.bottom > screen_height:
-            self.rect.bottom = screen_height
-            dy = 0
-
-        screen.blit(self.image, self.rect)
-        pygame.draw.rect(screen, (255,255,255), self.rect, 2)
         
-
 class World():
     def __init__(self, data) -> None:
         self.tile_list = []
@@ -155,30 +87,6 @@ class World():
             screen.blit(tile[0], tile[1])
             pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
 
-class Button():
-	def __init__(self, image, x_pos, y_pos, text_input):
-		self.image = image
-		self.x_pos = x_pos
-		self.y_pos = y_pos
-		self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
-		self.text_input = text_input
-		self.text = font.render(self.text_input, True, "white")
-		self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
-
-	def update(self):
-		screen.blit(self.image, self.rect)
-		screen.blit(self.text, self.text_rect)
-
-	def checkForInput(self, position):
-		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
-			return True
-
-	def changeColor(self, position):
-		if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
-			self.text = font.render(self.text_input, True, "white")
-		else:
-			self.text = font.render(self.text_input, True, "#0a4635")   
-
 def draw_background():
     for x in range(5):
         bg_speed = 0.2
@@ -188,7 +96,6 @@ def draw_background():
 
 player = Player(100, screen_height-128)
 world = World(world_data)
-
 
 #screen.blit(background_img, (0,0))
 pygame.display.update()
@@ -200,13 +107,13 @@ while loop:
         menu_text = font2.render("Julia's game", True, white)
         menu_rect = menu_text.get_rect(center=(screen_width/2, (screen_height/10)*1))
 
-        play_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*4, "PLAY")
-        option_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*5, "OPTIONS")
-        quit_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*6, "QUIT")
+        play_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*4, "PLAY", font)
+        option_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*5, "OPTIONS", font)
+        quit_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*6, "QUIT", font)
 
         for button in [play_button, option_button, quit_button]:
-            button.changeColor(mouse_pos)
-            button.update()
+            button.changeColor(mouse_pos, font)
+            button.update(screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -235,12 +142,12 @@ while loop:
         menu_text = font2.render("Julia's game", True, white)
         menu_rect = menu_text.get_rect(center=(screen_width/2, (screen_height/10)*1))
 
-        menu_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*7, "MENU")
-        quit_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*8, "QUIT")
+        menu_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*7, "MENU", font)
+        quit_button = Button(pygame.image.load("image/main_button.png"), screen_width/2, (screen_height/10)*8, "QUIT", font)
 
         for button in [menu_button, quit_button]:
-            button.changeColor(mouse_pos)
-            button.update()
+            button.changeColor(mouse_pos, font)
+            button.update(screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -259,8 +166,6 @@ while loop:
 
     while play:
         delta_time = clock.tick(FPS) / 1000
-
-    # old_player_rect = player.copy()
     
         #Eventhandler
         for event in pygame.event.get():
@@ -283,12 +188,18 @@ while loop:
             #screen.blit(background_img, (0, 0))  # Hintergrund zeichnen
             draw_background()
             key = pygame.key.get_pressed()
+            if (key[K_w] or key[K_SPACE]):
+                player.move(key, world, screen, delta_time)
             if key[pygame.K_a] and scroll > -5:
                 scroll -= 5
+                player.move(key, world, screen, delta_time)
             if key[pygame.K_d] and scroll < 3000:
                 scroll += 5
+                player.move(key, world, screen, delta_time)
+            if key[pygame.K_s]:
+                player.move(key, world, screen, delta_time)
             world.draw()  # Welt zeichnen
-            player.update()
+            player.update(world, screen)
             screen.blit(fps_text, (10, 10))  # FPS-Anzeige zeichnen
 
         if paused:
