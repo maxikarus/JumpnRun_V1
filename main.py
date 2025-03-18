@@ -65,14 +65,31 @@ while run:
         fps_timer = 0
     fps_text = font.render(f"FPS: {int(curr_fps)}", True, white)
 
-    screen.blit(background_img, old_player_rect, old_player_rect)
-    fps_rect = pygame.Rect(10, 10, fps_text.get_width(), fps_text.get_height())
-    screen.blit(background_img, fps_rect, fps_rect) 
-    screen.blit(player_img, player)
-    screen.blit(fps_text, (10, 10))
-    pygame.display.update([old_player_rect, player, pygame.Rect(10, 10, fps_text.get_width(), fps_text.get_height())])
-    
+        if not paused:
+            #screen.blit(background_img, (0, 0))  # Hintergrund zeichnen
+            draw_background()
+            key = pygame.key.get_pressed()
+            player.move(key, world, screen, delta_time)
+            if (key[K_w] or key[K_SPACE]):
+                player.move(key, world, screen, delta_time)
+            if key[pygame.K_a] and scroll > -5:
+                scroll -= 5
+                #player.move(key, world, screen, delta_time)
+            if key[pygame.K_d] and scroll < 3000:
+                scroll += 5
+                #player.move(key, world, screen, delta_time)
+            if key[pygame.K_s]:
+                player.move(key, world, screen, delta_time)
+            world.draw()  # Welt zeichnen
+            player.update(screen)
+            screen.blit(fps_text, (10, 10))  # FPS-Anzeige zeichnen
 
+        if paused:
+            screen.blit(pause_text, (530, 200))
+            #screen.blit(fps_text, (10, 10))
+    
+        pygame.display.flip()
+    
 pygame.quit()
 
 #tetststetetete
