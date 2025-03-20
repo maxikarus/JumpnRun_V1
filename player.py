@@ -32,10 +32,12 @@ class Player():
             self.jumped = False
         if key[K_a] and scroll >= 0:
             self.dx -= speed * delta_time
+            #scroll -= 5
         if key[K_s]:
             self.dy += speed * delta_time
         if key[K_d] and scroll < 3000:
             self.dx += speed * delta_time
+            #scroll += 5
 
         print(self.dy)
 

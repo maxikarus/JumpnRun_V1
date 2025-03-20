@@ -187,17 +187,7 @@ while loop:
         if not paused:
             #screen.blit(background_img, (0, 0))  # Hintergrund zeichnen
             draw_background()
-            key = pygame.key.get_pressed()
-            if (key[K_w] or key[K_SPACE]):
-                player.move(key, world, screen, delta_time)
-            if key[pygame.K_a] and scroll > -5:
-                scroll -= 5
-                player.move(key, world, screen, delta_time)
-            if key[pygame.K_d] and scroll < 3000:
-                scroll += 5
-                player.move(key, world, screen, delta_time)
-            if key[pygame.K_s]:
-                player.move(key, world, screen, delta_time)
+            player.move(pygame.key.get_pressed(), world, screen, delta_time)  # Spieler bewegen
             world.draw()  # Welt zeichnen
             player.update(world, screen)
             screen.blit(fps_text, (10, 10))  # FPS-Anzeige zeichnen
