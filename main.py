@@ -188,6 +188,7 @@ while loop:
             #screen.blit(background_img, (0, 0))  # Hintergrund zeichnen
             draw_background()
             key = pygame.key.get_pressed()
+<<<<<<< HEAD
             if (key[K_w] or key[K_SPACE]):
                 player.move(key, world, screen, delta_time)
             if key[pygame.K_a] and scroll > -5:
@@ -198,6 +199,24 @@ while loop:
                 player.move(key, world, screen, delta_time)
             if key[pygame.K_s]:
                 player.move(key, world, screen, delta_time)
+=======
+            player.dx = 0
+            player.dy = 0
+            if (key[K_w] or key[K_SPACE]):
+                player.jump(screen, world)
+            if (key[K_w] or key[K_SPACE]) == False:     
+                player.jumped = False
+            if key[pygame.K_a] and scroll > -5:
+                player.move_left(delta_time, world)
+                if(player.collisiontest(world)==False):
+                    scroll -= 5
+            if key[pygame.K_d] and scroll < 3000:
+                player.move_right(delta_time, world)
+                if(player.collisiontest(world)==False):
+                    scroll += 5
+            if key[pygame.K_s]:
+                player.move_down(world, delta_time)
+>>>>>>> origin/Julia
             world.draw()  # Welt zeichnen
             player.update(world, screen)
             screen.blit(fps_text, (10, 10))  # FPS-Anzeige zeichnen
