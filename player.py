@@ -1,9 +1,6 @@
 import pygame
 from pygame.locals import *
-<<<<<<< HEAD
-=======
 #from main import *
->>>>>>> origin/Julia
 
 speed = 400
 scroll = 0
@@ -36,26 +33,11 @@ class Player():
             self.jumped = False
         if key[K_a] and scroll >= 0:
             self.dx -= speed * delta_time
-<<<<<<< HEAD
-=======
             #scroll -= 5
->>>>>>> origin/Julia
         if key[K_s]:
             self.dy += speed * delta_time
         if key[K_d] and scroll < 3000:
             self.dx += speed * delta_time
-<<<<<<< HEAD
-
-        print(self.dy)
-
-        #add gravity
-        self.vel_y += 5
-        if self.vel_y > 10:
-            self.vel_y = 10
-        self.dy += self.vel_y
-
-        #check for collison
-=======
             #scroll += 5
 
     def move_left(self, delta_time, world):
@@ -84,7 +66,6 @@ class Player():
     def collisiontest(self, world):
         collision = False
         self.onGround = False
->>>>>>> origin/Julia
         for tile in world.tile_list:
             #check in x
             if tile[1].colliderect(self.rect.x +self.dx, self.rect.y, self.width, self.height):
@@ -92,29 +73,19 @@ class Player():
                     self.dx = tile[1].left - self.rect.right
                 elif self.dx < 0:  # Moving left
                     self.dx = tile[1].right - self.rect.left
-<<<<<<< HEAD
-            #check in y
-            if tile[1].colliderect(self.rect.x, self.rect.y + self.dy, self.width, self.height):
-                #check if below block
-=======
                 collision = True
             #check in y
             if tile[1].colliderect(self.rect.x, self.rect.y + self.dy, self.width, self.height):
             #check if below block
->>>>>>> origin/Julia
                 if self.vel_y < 0:
                     self.dy = tile[1].bottom - self.rect.top
                     self.vel_y = 0
                 elif self.vel_y >= 0:
                     self.dy = tile[1].top - self.rect.bottom
                     self.onGround = True
-<<<<<<< HEAD
-
-=======
                 collision = True
         return collision
         
->>>>>>> origin/Julia
     def update(self, world, screen):
         #update player position
         self.rect.x += self.dx
