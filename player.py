@@ -23,8 +23,6 @@ class Player():
     def move(self, key, world, screen, delta_time):
         self.dx = 0
         self.dy = 0
-        #self.onGround = False
-        
 
         if (key[K_w] or key[K_SPACE]) and self.jumped == False and self.onGround == True:
             self.vel_y = -screen.get_width() / 30
@@ -39,7 +37,7 @@ class Player():
         if key[K_d] and scroll < 3000:
             self.dx += speed * delta_time
 
-        #print(self.dy)
+        print(self.dy)
 
         #add gravity
         self.vel_y += 5
@@ -64,9 +62,8 @@ class Player():
                 elif self.vel_y >= 0:
                     self.dy = tile[1].top - self.rect.bottom
                     self.onGround = True
-                    #self.vel_y = 0
 
-    def update(self, screen):
+    def update(self, world, screen):
         #update player position
         self.rect.x += self.dx
         self.rect.y += self.dy
