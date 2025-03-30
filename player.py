@@ -88,7 +88,7 @@ class Player():
                 collision = True
         return collision
         
-    def update(self, world, screen):
+    def update(self, world, screen, camera_offset):
         #update player position
 
         if not self.onGround:
@@ -111,5 +111,7 @@ class Player():
 
         self.dx = 0
 
-        screen.blit(self.image, self.rect)
-        pygame.draw.rect(screen, (255,255,255), self.rect, 2)
+        screen.blit(self.image, (self.rect.x -camera_offset[0], self.rect.y - camera_offset[1]))
+        pygame.draw.rect(screen, (255,255,255), 
+                         (self.rect.x - camera_offset[0], self.rect.y - camera_offset[1],
+                          self.width, self.height), 2)

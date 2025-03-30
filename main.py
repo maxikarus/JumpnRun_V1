@@ -33,7 +33,7 @@ fps_timer = 0
 curr_fps = 0
 delta_time = 0
 speed = 400
-scroll = 0
+camera_offset = [0, 0]
 
 #Grafiken
 background_imgs = []
@@ -65,6 +65,7 @@ class World():
     def __init__(self, data) -> None:
         self.tile_list = []
         self.tile_size = tile_size
+        
         #load images
         grass_img = pygame.image.load('image/grass_block.png')
 
@@ -84,18 +85,25 @@ class World():
     
     def draw(self) -> None:
         for tile in self.tile_list:
-            screen.blit(tile[0], tile[1])
-            pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
+            screen.blit(tile[0], (tile[1].x - camera_offset[0], tile[1].y))
+            pygame.draw.rect(screen, (255, 255, 255), 
+                             (tile[1].x - camera_offset[0], tile[1].y - camera_offset[1],
+                             tile[1].width, tile[1].height), 2)
 
 def draw_background():
-    for x in range(5):
-        bg_speed = 0.2
-        for i in background_imgs:
-            screen.blit(i, ((x*background_width) - scroll * bg_speed, 0))
-            bg_speed += 0.1
+    num_tiles = int(screen_width / background_width) + 2
+    bg_speed = 30
+    for i, img in enumerate(background_imgs):
+        speed = 0.1 + i/bg_speed
+        offset_x = int(camera_offset[0] * speed) % background_width
+        for y in range(-1, num_tiles):
+            screen.blit(img, (y * background_width - offset_x, 0))
 
 player = Player(100, screen_height-128)
 world = World(world_data)
+world_width = len(world_data[0])
+world_height = len(world_data)
+
 
 #screen.blit(background_img, (0,0))
 pygame.display.update()
@@ -166,6 +174,12 @@ while loop:
 
     while play:
         delta_time = clock.tick(FPS) / 1000
+        # Kamera folgt dem Spieler (zentriert ihn)
+        camera_offset[0] += (player.rect.x - screen_width / 2 - camera_offset[0]) / 20
+        camera_offset[1] = 0
+        # Begrenze die Kamera auf die Weltgrenzen
+        #camera_offset[0] = max(0, min(camera_offset[0], world_width * tile_size - screen_width))
+        #camera_offset[1] = max(0, min(camera_offset[1], screen_height - player.height))
     
         #Eventhandler
         for event in pygame.event.get():
@@ -206,7 +220,7 @@ while loop:
             elif key[pygame.K_s]:
                 player.move_down(world, delta_time)
             world.draw()  # Welt zeichnen
-            player.update(world, screen)
+            player.update(world, screen, camera_offset)  # Spieler aktualisieren
             screen.blit(fps_text, (10, 10))  # FPS-Anzeige zeichnen
 
         if paused:
