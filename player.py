@@ -49,14 +49,16 @@ class Player():
         #self.collisiontest(world)
  
     def jump(self, screen, world):
-        self.vel_y = -screen.get_width() / 30
-        self.jumped = True
-        self.onGround = False
-        self.collisiontest(world)
+        if self.onGround == True:
+            self.vel_y = -screen.get_width() / 30
+            #self.dy = self.vel_y
+            self.jumped = True
+            self.onGround = False
+            #self.collisiontest(world)
         
     def move_down(self, world, delta_time):
         self.dy += speed * delta_time
-        self.collisiontest(world)
+        #self.collisiontest(world)
         #print(self.dy)
 
         #add gravity
@@ -88,14 +90,26 @@ class Player():
         
     def update(self, world, screen):
         #update player position
+
+        if not self.onGround:
+            self.dy += self.vel_y  # Gravity effect
+            self.vel_y += 5
+            if self.vel_y > 10:  # Limit falling speed
+                self.vel_y = 10
+        else:
+            self.dy = 0
+
+        self.collisiontest(world)
+
         self.rect.x += self.dx
         self.rect.y += self.dy
-
-        self.dx = 0
-
+        
         if self.rect.bottom > screen.get_height():
             self.rect.bottom = screen.get_height()
+            self.onGround = True
             self.dy = 0
+
+        self.dx = 0
 
         screen.blit(self.image, self.rect)
         pygame.draw.rect(screen, (255,255,255), self.rect, 2)
