@@ -95,9 +95,9 @@ def draw_background():
     bg_speed = 30
     for i, img in enumerate(background_imgs):
         speed = 0.1 + i/bg_speed
-        offset_x = int(camera_offset[0] * speed) % background_width
+        offset_x = int(camera_offset[0] * speed) % int(background_width)
         for y in range(-1, num_tiles):
-            screen.blit(img, (y * background_width - offset_x, 0))
+            screen.blit(img, (int(y * background_width - offset_x), 0))
 
 player = Player(100, screen_height-128)
 world = World(world_data)
@@ -205,7 +205,7 @@ while loop:
             player.dx = 0
             player.dy = 0
             if ((key[K_w] or key[K_SPACE]) and player.jumped == False and player.onGround == True):
-                print("jump")
+                #print("jump")
                 player.jump(screen, world)
             elif (key[K_w] or key[K_SPACE]) == False:     
                 player.jumped = False
