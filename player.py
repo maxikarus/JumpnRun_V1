@@ -21,25 +21,6 @@ class Player():
         self.jumped = False
         self.onGround = False
 
-    def move(self, key, world, screen, delta_time):
-        self.dx = 0
-        self.dy = 0
-
-        if (key[K_w] or key[K_SPACE]) and self.jumped == False and self.onGround == True:
-            self.vel_y = -screen.get_width() / 30
-            self.jumped = True
-            self.onGround = False
-        if (key[K_w] or key[K_SPACE]) == False:     
-            self.jumped = False
-        if key[K_a] and scroll >= 0:
-            self.dx -= speed * delta_time
-            #scroll -= 5
-        if key[K_s]:
-            self.dy += speed * delta_time
-        if key[K_d] and scroll < 3000:
-            self.dx += speed * delta_time
-            #scroll += 5
-
     def move_left(self, delta_time, world):
         self.dx -= speed * delta_time
         #self.collisiontest(world)
@@ -88,6 +69,13 @@ class Player():
                 collision = True
         return collision
         
+    def read_pos(str):
+        str = str.split(",")   
+        return int(str[0]), int(str[1])
+
+    def make_pos(tup):
+        return str(tup[0]) + "," + str(tup[1])
+
     def update(self, world, screen, camera_offset):
         #update player position
 
