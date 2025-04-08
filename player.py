@@ -21,25 +21,6 @@ class Player():
         self.jumped = False
         self.onGround = False
 
-    def move(self, key, world, screen, delta_time):
-        self.dx = 0
-        self.dy = 0
-
-        if (key[K_w] or key[K_SPACE]) and self.jumped == False and self.onGround == True:
-            self.vel_y = -screen.get_width() / 30
-            self.jumped = True
-            self.onGround = False
-        if (key[K_w] or key[K_SPACE]) == False:     
-            self.jumped = False
-        if key[K_a] and scroll >= 0:
-            self.dx -= speed * delta_time
-            #scroll -= 5
-        if key[K_s]:
-            self.dy += speed * delta_time
-        if key[K_d] and scroll < 3000:
-            self.dx += speed * delta_time
-            #scroll += 5
-
     def move_left(self, delta_time, world):
         self.dx -= speed * delta_time
         #self.collisiontest(world)
@@ -49,14 +30,16 @@ class Player():
         #self.collisiontest(world)
  
     def jump(self, screen, world):
-        self.vel_y = -screen.get_width() / 30
-        self.jumped = True
-        self.onGround = False
-        self.collisiontest(world)
+        if self.onGround == True:
+            self.vel_y = -screen.get_width() / 30
+            #self.dy = self.vel_y
+            self.jumped = True
+            self.onGround = False
+            #self.collisiontest(world)
         
     def move_down(self, world, delta_time):
         self.dy += speed * delta_time
-        self.collisiontest(world)
+        #self.collisiontest(world)
         #print(self.dy)
 
         #add gravity
@@ -86,16 +69,37 @@ class Player():
                 collision = True
         return collision
         
-    def update(self, world, screen):
+    def read_pos(str):
+        str = str.split(",")   
+        return int(str[0]), int(str[1])
+
+    def make_pos(tup):
+        return str(tup[0]) + "," + str(tup[1])
+
+    def update(self, world, screen, camera_offset):
         #update player position
+
+        if not self.onGround:
+            self.dy += self.vel_y  # Gravity effect
+            self.vel_y += 5
+            if self.vel_y > 10:  # Limit falling speed
+                self.vel_y = 10
+        else:
+            self.dy = 0
+
+        self.collisiontest(world)
+
         self.rect.x += self.dx
         self.rect.y += self.dy
+        
+        if self.rect.bottom > screen.get_height():
+            self.rect.bottom = screen.get_height()
+            self.onGround = True
+            self.dy = 0
 
         self.dx = 0
 
-        if self.rect.bottom > screen.get_height():
-            self.rect.bottom = screen.get_height()
-            self.dy = 0
-
-        screen.blit(self.image, self.rect)
-        pygame.draw.rect(screen, (255,255,255), self.rect, 2)
+        screen.blit(self.image, (self.rect.x -camera_offset[0], self.rect.y - camera_offset[1]))
+        pygame.draw.rect(screen, (255,255,255), 
+                         (self.rect.x - camera_offset[0], self.rect.y - camera_offset[1],
+                          self.width, self.height), 2)
